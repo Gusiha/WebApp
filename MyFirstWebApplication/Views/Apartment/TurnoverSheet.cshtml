@@ -3,9 +3,7 @@
     <link rel="stylesheet" href="~/css/TurnoverSheetStyle.css" type="text/css" />
 
 </head>
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
+
 
 
 @{
@@ -21,7 +19,7 @@
     
 }
 
-<h1>Оборотная ведомость за @year год</h1>
+<h1 style="margin-top:auto">Оборотная ведомость за @year год</h1>
 
 <table class="table table-borderless">
     <thead >
@@ -81,7 +79,7 @@
 
             <tr>
                 <td class="align-middle" >
-                    <div class="btn-group dropstart">
+                    <div class="btn-group">
                         <button type="button" class="btn btn-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
                         @Html.DisplayFor(modelItem => item.ElementAt(0).Id)
                         </button>
