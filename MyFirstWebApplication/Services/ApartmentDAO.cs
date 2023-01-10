@@ -406,7 +406,7 @@ namespace MyFirstWebApplication.Services
                     sqlCommand = new(sqlStatement, connection);
 
                     sqlCommand.Parameters.AddWithValue("ap_id", model.Id);
-                    sqlCommand.Parameters.AddWithValue("saldo", model.Saldo);
+                    sqlCommand.Parameters.AddWithValue("saldo", remaining);
                     sqlCommand.Parameters.AddWithValue("charges", model.MonthSaldo);
                     sqlCommand.Parameters.AddWithValue("payments", model.Paid);
                     
