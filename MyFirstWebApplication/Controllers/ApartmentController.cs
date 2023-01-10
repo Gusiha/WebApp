@@ -43,18 +43,21 @@ namespace MyFirstWebApplication.Controllers
             return View(apartmentDAO.GetAllApartments(model.Year));
         }
 
-        public void AddApartment(ApartmentModel model)
+        public IActionResult AddApartment(ApartmentModel model)
         {
             ApartmentDAO apartmentDAO= new ApartmentDAO();
             if (apartmentDAO.CheckApartment(model.Id,model.Year,model.MonthId))
             {
-                apartmentDAO.Update(model);
+                if (apartmentDAO.Update(model))
+                    return View("Success");
+                else return View("Failure");
             }
             else
             {
-                apartmentDAO.InsertApartment(model);
+                if (apartmentDAO.InsertApartment(model))
+                    return View("Success");
+                else return View("Failure");
             }
-            View("TurnoverSheet", model);
         }
 
         public void AddPayment(ApartmentModel model)
@@ -83,5 +86,14 @@ namespace MyFirstWebApplication.Controllers
             return View("TurnoverSheet", apartmentDAO.GetAllApartments(model.Year));
         }
 
+        public IActionResult Success()
+        {
+            return View();
+        }
+
+        public IActionResult Failure()
+        {
+            return View();
+        }
     }
 }

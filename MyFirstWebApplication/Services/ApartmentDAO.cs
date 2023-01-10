@@ -434,6 +434,7 @@ namespace MyFirstWebApplication.Services
                 {
                     Console.WriteLine("Apartment hasn't been updated");
                     Console.WriteLine(ex.Message);
+
                 }
                 return false;
 
