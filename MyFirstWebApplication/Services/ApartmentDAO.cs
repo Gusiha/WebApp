@@ -394,30 +394,71 @@ namespace MyFirstWebApplication.Services
 
                                     UPDATE lab1.money SET remaining = remaining + (@charges-@payments)
                                     WHERE ap_id = @apartment_number AND month_id=@month_id AND year=@year;";
-            if (model.MonthId == 1)
-            {
-                sqlStatement2 += @"UPDATE lab1.money SET saldo = saldo+@saldo
-                                   WHERE ap_id = @apartment_number AND month_id=@month_id AND year=@year";
-            }
+
+            string sqlStatementYear = @"SELECT year FROM money WHERE ap_id=@ap_id order by year desc;";
+            string sqlStatementMonth = @"SELECT month_id FROM money WHERE ap_id=@ap_id AND year=@year order by month_id desc;";
+            string sqlRequest = @"SELECT remaining FROM money WHERE ap_id=@ap_id AND year=@year AND month_id=@month_id;";
+
+
+            //if (model.MonthId == 1)
+            //{
+            //    sqlStatement2 += @"UPDATE lab1.money SET saldo = saldo+@saldo
+            //                       WHERE ap_id = @apartment_number AND month_id=@month_id AND year=@year";
+            //}
+
+
 
             using (MySqlConnection connection = new(connectionString))
             {
                 MySqlCommand sqlCommand;
-
-                sqlCommand = new(sqlStatement2, connection);
-
-                sqlCommand.Parameters.AddWithValue("apartment_number", model.Id);
-                sqlCommand.Parameters.AddWithValue("saldo", model.Saldo);
-                sqlCommand.Parameters.AddWithValue("charges", model.MonthSaldo);
-                sqlCommand.Parameters.AddWithValue("payments", model.Paid);
-                sqlCommand.Parameters.AddWithValue("remaining", model.Left);
-                sqlCommand.Parameters.AddWithValue("month_id", model.MonthId);
-                sqlCommand.Parameters.AddWithValue("year", model.Year);
-
                 try
                 {
+                    sqlCommand = new(sqlStatementYear, connection);
+                    sqlCommand.Parameters.AddWithValue("ap_id", model.Id);
                     connection.Open();
+
+                    MySqlDataReader mySqlDataReader = sqlCommand.ExecuteReader();
+                    mySqlDataReader.Read();
+                    int Year = (int)mySqlDataReader[0];
+
+                    sqlCommand = new(sqlStatementMonth, connection);
+                    sqlCommand.Parameters.AddWithValue("ap_id", model.Id);
+                    sqlCommand.Parameters.AddWithValue("year", Year);
+
+                    mySqlDataReader = sqlCommand.ExecuteReader();
+                    mySqlDataReader.Read();
+                    int month = (int)mySqlDataReader[0];
+
+                    sqlCommand = new(sqlRequest, connection);
+                    sqlCommand.Parameters.AddWithValue("ap_id", model.Id);
+                    sqlCommand.Parameters.AddWithValue("year", Year);
+                    sqlCommand.Parameters.AddWithValue("month_id", month);
+
+
+                    mySqlDataReader = sqlCommand.ExecuteReader();
+                    mySqlDataReader.Read();
+                    decimal remaining = (decimal)mySqlDataReader[0];
+
+                    if (month==12)
+                    {
+                        month = 1;
+                        Year++;
+                    }
+
+                    else { month++; }
+
+                    sqlCommand = new(sqlStatement2, connection);
+
+                    sqlCommand.Parameters.AddWithValue("apartment_number", model.Id);
+                    sqlCommand.Parameters.AddWithValue("saldo", model.Saldo);
+                    sqlCommand.Parameters.AddWithValue("charges", model.MonthSaldo);
+                    sqlCommand.Parameters.AddWithValue("payments", model.Paid);
+                    sqlCommand.Parameters.AddWithValue("remaining", remaining + model.MonthSaldo - model.Paid);
+                    sqlCommand.Parameters.AddWithValue("month_id", month);
+                    sqlCommand.Parameters.AddWithValue("year", Year);
+
                     sqlCommand.ExecuteNonQuery();
+
                     Console.WriteLine("Apartment has been updated");
                     return true;
                 }

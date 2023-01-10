@@ -73,7 +73,7 @@ namespace MyFirstWebApplication.Controllers
         {
             ApartmentDAO apartmentDAO = new ApartmentDAO();
             apartmentDAO.Edit(model);
-            return View();
+            return View("TurnoverSheet", apartmentDAO.GetAllApartments(model.Year));
         }
 
     }
