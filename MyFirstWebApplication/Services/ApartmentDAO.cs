@@ -177,16 +177,16 @@ namespace MyFirstWebApplication.Services
         public bool CheckApartment(int id, int year, int month)
         {
 
-            string sqlStatement = @"SELECT ap_id,saldo,charges,payments,remaining,month_id,year,month_name
-                                    FROM lab1.money INNER JOIN time ON month_id = time.id
-                                    WHERE year=@year AND month_id=@month_id AND ap_id=@ap_id;";
+            //string sqlStatement = @"SELECT ap_id,saldo,charges,payments,remaining,month_id,year,month_name
+            //                        FROM lab1.money INNER JOIN time ON month_id = time.id
+            //                        WHERE year=@year AND month_id=@month_id AND ap_id=@ap_id;";
+
+            string sqlStatement = @"SELECT * FROM apartment WHERE id=@id";
 
             using (MySqlConnection connection = new(connectionString))
             {
                 MySqlCommand SqlCommand = new(sqlStatement, connection);
-                SqlCommand.Parameters.AddWithValue("@year", year);
-                SqlCommand.Parameters.AddWithValue("@month_id", month);
-                SqlCommand.Parameters.AddWithValue("@ap_id", id);
+                SqlCommand.Parameters.AddWithValue("@id", id);
 
                 try
                 {
@@ -196,12 +196,12 @@ namespace MyFirstWebApplication.Services
                     if (reader.HasRows)
                     {
                         Console.WriteLine("Record has been found");
-                        return false;
+                        return true;
                     }
                     else
                     {
                         Console.WriteLine("Record hasn't been found");
-                        return true;
+                        return false;
 
                     }
 
@@ -254,55 +254,11 @@ namespace MyFirstWebApplication.Services
 
         public bool InsertApartment(ApartmentModel model)
         {
-            string sqlStatement = @"INSERT INTO lab1.apartment(id) VALUES (@apartment_number);
+            string sqlStatement = @"INSERT INTO lab1.apartment(id) VALUES (@ap_id);
                                     INSERT INTO lab1.money(ap_id,saldo,charges,payments,remaining,month_id,year) 
-                                    VAlUES (@apartment_number,@saldo,@charges,@payments,@remaining,@month_number,@year);";
+                                    VAlUES (@ap_id,@saldo,@charges,@payments,@remaining,@month_number,@year);";
 
-            string sqlStatement1 = @"INSERT INTO lab1.money(ap_id,saldo,charges,payments,remaining,month_id,year) 
-                                    VAlUES (@apartment_number,@saldo,@charges,@payments,@remaining,@month_number,@year);";
-
-            //string sqlStatement2 = @"UPDATE lab1.money SET payments = payments + @payments
-            //                        WHERE ap_id = @apartment_number AND month_id=@month_id AND year=@year;
-
-            //                        UPDATE lab1.money SET charges = charges + @charges
-            //                        WHERE ap_id = @apartment_number AND month_id=@month_id AND year=@year;
-
-            //                        UPDATE lab1.money SET remaining = remaining + (@charges-@payments)
-            //                        WHERE ap_id = @apartment_number AND month_id=@month_id AND year=@year";
-
-            //using (MySqlConnection connection = new(connectionString))
-            //{
-            //    MySqlCommand sqlCommand;
-
-            //if (!CheckApartment(model.Id, model.Year, model.MonthId))
-            //{
-            //    sqlCommand = new(sqlStatement2, connection);
-
-            //    sqlCommand.Parameters.AddWithValue("apartment_number", model.Id);
-            //    sqlCommand.Parameters.AddWithValue("saldo", model.Saldo);
-            //    sqlCommand.Parameters.AddWithValue("charges", model.MonthSaldo);
-            //    sqlCommand.Parameters.AddWithValue("payments", model.Paid);
-            //    sqlCommand.Parameters.AddWithValue("remaining", model.Left);
-            //    sqlCommand.Parameters.AddWithValue("month_id", model.MonthId);
-            //    sqlCommand.Parameters.AddWithValue("year", model.Year);
-
-            //    try
-            //    {
-            //        connection.Open();
-            //        Console.WriteLine("Apartment has been updated");
-            //        return sqlCommand.ExecuteNonQuery();
-            //    }
-            //    catch (Exception ex)
-            //    {
-            //        Console.WriteLine("Apartment hasn't been updated");
-            //        Console.WriteLine(ex.Message);
-            //    }
-            //    return -1;
-
-            //}
-
-            if (!CheckApartment(model.Id, model.Year, model.MonthId))
-                return Update(model);
+            
 
             using (MySqlConnection connection = new(connectionString))
             {
@@ -310,16 +266,9 @@ namespace MyFirstWebApplication.Services
 
                 {
                     model.Left = model.MonthSaldo - model.Paid + model.Saldo;
-                    if (model.MonthId == 1)
-                    {
-                        sqlCommand = new(sqlStatement, connection);
-                    }
-                    else
-                    {
-                        sqlCommand = new(sqlStatement1, connection);
-                    }
+                    sqlCommand = new(sqlStatement, connection);
 
-                    sqlCommand.Parameters.AddWithValue("apartment_number", model.Id);
+                    sqlCommand.Parameters.AddWithValue("ap_id", model.Id);
                     sqlCommand.Parameters.AddWithValue("saldo", model.Saldo);
                     sqlCommand.Parameters.AddWithValue("charges", model.MonthSaldo);
                     sqlCommand.Parameters.AddWithValue("payments", model.Paid);
@@ -386,14 +335,17 @@ namespace MyFirstWebApplication.Services
 
         public bool Update(ApartmentModel model)
         {
-            string sqlStatement2 = @"UPDATE lab1.money SET payments = payments + @payments
-                                    WHERE ap_id = @apartment_number AND month_id=@month_id AND year=@year;
+            //string sqlStatement2 = @"UPDATE lab1.money SET payments = payments + @payments
+            //                        WHERE ap_id = @apartment_number AND month_id=@month_id AND year=@year;
 
-                                    UPDATE lab1.money SET charges = charges + @charges
-                                    WHERE ap_id = @apartment_number AND month_id=@month_id AND year=@year;
+            //                        UPDATE lab1.money SET charges = charges + @charges
+            //                        WHERE ap_id = @apartment_number AND month_id=@month_id AND year=@year;
 
-                                    UPDATE lab1.money SET remaining = remaining + (@charges-@payments)
-                                    WHERE ap_id = @apartment_number AND month_id=@month_id AND year=@year;";
+            //                        UPDATE lab1.money SET remaining = remaining + (@charges-@payments)
+            //                        WHERE ap_id = @apartment_number AND month_id=@month_id AND year=@year;";
+
+            string sqlStatement = @"INSERT INTO money (month_id, charges, payments, remaining, ap_id, year, saldo)
+                                    VALUES (@month_id, @charges, @payments, @remaining, @ap_id, @year, @saldo);";
 
             string sqlStatementYear = @"SELECT year FROM money WHERE ap_id=@ap_id order by year desc;";
             string sqlStatementMonth = @"SELECT month_id FROM money WHERE ap_id=@ap_id AND year=@year order by month_id desc;";
@@ -406,7 +358,7 @@ namespace MyFirstWebApplication.Services
             //                       WHERE ap_id = @apartment_number AND month_id=@month_id AND year=@year";
             //}
 
-
+            
 
             using (MySqlConnection connection = new(connectionString))
             {
@@ -420,6 +372,8 @@ namespace MyFirstWebApplication.Services
                     MySqlDataReader mySqlDataReader = sqlCommand.ExecuteReader();
                     mySqlDataReader.Read();
                     int Year = (int)mySqlDataReader[0];
+                    mySqlDataReader.Close();
+
 
                     sqlCommand = new(sqlStatementMonth, connection);
                     sqlCommand.Parameters.AddWithValue("ap_id", model.Id);
@@ -428,6 +382,7 @@ namespace MyFirstWebApplication.Services
                     mySqlDataReader = sqlCommand.ExecuteReader();
                     mySqlDataReader.Read();
                     int month = (int)mySqlDataReader[0];
+                    mySqlDataReader.Close();
 
                     sqlCommand = new(sqlRequest, connection);
                     sqlCommand.Parameters.AddWithValue("ap_id", model.Id);
@@ -438,24 +393,37 @@ namespace MyFirstWebApplication.Services
                     mySqlDataReader = sqlCommand.ExecuteReader();
                     mySqlDataReader.Read();
                     decimal remaining = (decimal)mySqlDataReader[0];
+                    mySqlDataReader.Close();
 
                     if (month==12)
                     {
                         month = 1;
                         Year++;
                     }
-
+                    
                     else { month++; }
 
-                    sqlCommand = new(sqlStatement2, connection);
+                    sqlCommand = new(sqlStatement, connection);
 
-                    sqlCommand.Parameters.AddWithValue("apartment_number", model.Id);
+                    sqlCommand.Parameters.AddWithValue("ap_id", model.Id);
                     sqlCommand.Parameters.AddWithValue("saldo", model.Saldo);
                     sqlCommand.Parameters.AddWithValue("charges", model.MonthSaldo);
                     sqlCommand.Parameters.AddWithValue("payments", model.Paid);
-                    sqlCommand.Parameters.AddWithValue("remaining", remaining + model.MonthSaldo - model.Paid);
+                    
                     sqlCommand.Parameters.AddWithValue("month_id", month);
                     sqlCommand.Parameters.AddWithValue("year", Year);
+
+                    //if (month==1)
+                    //{
+                    //    sqlCommand.Parameters.AddWithValue("remaining", remaining + model.MonthSaldo - model.Paid);
+                    //}
+                    //else
+                    //{
+                    //    sqlCommand.Parameters.AddWithValue("remaining", remaining + model.MonthSaldo - model.Paid - model.Saldo);
+                    //}
+
+                    sqlCommand.Parameters.AddWithValue("remaining", remaining + model.MonthSaldo - model.Paid);
+
 
                     sqlCommand.ExecuteNonQuery();
 

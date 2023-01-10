@@ -46,8 +46,15 @@ namespace MyFirstWebApplication.Controllers
         public void AddApartment(ApartmentModel model)
         {
             ApartmentDAO apartmentDAO= new ApartmentDAO();
-            apartmentDAO.InsertApartment(model);
-            View("Index");
+            if (apartmentDAO.CheckApartment(model.Id,model.Year,model.MonthId))
+            {
+                apartmentDAO.Update(model);
+            }
+            else
+            {
+                apartmentDAO.InsertApartment(model);
+            }
+            View("TurnoverSheet", model);
         }
 
         public void AddPayment(ApartmentModel model)
