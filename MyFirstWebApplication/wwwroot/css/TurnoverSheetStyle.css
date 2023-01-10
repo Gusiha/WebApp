@@ -1,0 +1,29 @@
+﻿
+table {
+    border: 0px solid aliceblue;
+    font-size: 15px;
+    text-align: center;
+    color: aliceblue;
+    background: aliceblue;
+    border-collapse: collapse;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+
+.table thead tr {
+    background-color: moccasin;
+}
+
+
+h1 {
+    text-align: center !important;
+}
+
+
+
+.btn-outline-primary {
+    background-color: orange;
+    color: ghostwhite;
+    border-color: transparent;
+}

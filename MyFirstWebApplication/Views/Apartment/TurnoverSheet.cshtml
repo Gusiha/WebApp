@@ -1,0 +1,124 @@
+﻿@model IEnumerable<MyFirstWebApplication.Models.ApartmentModel>
+<head>
+    <link rel="stylesheet" href="~/css/TurnoverSheetStyle.css" type="text/css" />
+
+</head>
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+
+
+@{
+    var collection = from element in Model
+                     orderby element.MonthId ascending
+                     orderby element.Id ascending
+                     group element by element.Id;
+
+    decimal remaining = 0;
+    int month = 0;
+    int year = Model.ElementAt(0).Year;
+
+    
+}
+
+<h1>Оборотная ведомость за @year год</h1>
+
+<table class="table table-borderless">
+    <thead >
+        <tr>
+            <th>
+                Квартира
+            </th>
+            <th>
+                Вх.сальдо
+            </th>
+            <th>
+                Январь
+            </th>
+            <th>
+                Февраль
+            </th>
+            <th>
+                Март
+            </th>
+            <th>
+                Апрель
+            </th>
+            <th>
+                Май
+            </th>
+            <th>
+                Июнь
+            </th>
+            <th>
+                Июль
+            </th>
+            <th>
+                Август
+            </th>
+            <th>
+                Сентябрь
+            </th>
+            <th>
+                Октябрь
+            </th>
+            <th>
+                Ноябрь
+            </th>
+            <th>
+                Декабрь
+            </th>
+            <th>
+                Исх.сальдо
+            </th>
+
+        </tr>
+    </thead>
+
+    <tbody>
+        @foreach (var item in collection)
+        {
+
+            <tr>
+                <td class="align-middle " >
+                    <div class="btn-group dropstart">
+                        <button type="button" class="btn btn-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                        @Html.DisplayFor(modelItem => item.ElementAt(0).Id)
+                        </button>
+                        <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
+                        <li><a class="dropdown-item" asp-action="Delete" asp-route-id="@item.ElementAt(0).Id">Delete</a></li>
+                        <li><a class="dropdown-item" asp-action="UpdateForm" asp-route-id="@item.ElementAt(0).Id">Update</a></li>
+                        </ul>
+                    </div>
+                </td>
+                <td class="align-middle">
+                    @Html.DisplayFor(modelItem => item.ElementAt(0).Saldo)
+                </td>
+                @foreach (var subitem in item)
+                {
+                    <td>
+                           <a class="btn btn-outline-primary" href="/Apartment/Details/?id=@subitem.Id&month=@subitem.MonthId&year=@subitem.Year" role="button">
+
+
+                            @Html.DisplayFor(modelItem => subitem.MonthSaldo)  <br>
+                            @Html.DisplayFor(modelItem => subitem.Paid)        <br>
+                            @Html.DisplayFor(modelItem => subitem.Left)
+                        </a>
+
+
+                        @{
+                            remaining = subitem.Left; month = subitem.MonthId;
+                        }
+                    </td>
+                }
+                <td>
+                    @if (month == 12)
+                        @Html.DisplayFor(modelItem => remaining)
+
+
+                    </td>
+                </tr>
+        }
+    </tbody>
+
+</table>
